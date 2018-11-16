@@ -3,6 +3,8 @@
 var express = require('express');
 var mongo = require('mongodb');
 var mongoose = require('mongoose');
+var bodyParser = require('body-parser');
+var dns = require('dns');
 
 var cors = require('cors');
 
@@ -18,6 +20,13 @@ app.use(cors());
 
 /** this project needs to parse POST bodies **/
 // you should mount the body-parser here
+var jsonParser = bodyParser.json();
+var urlEncodedParser = bodyParser.urlencoded({extended: false});
+
+const options = {
+  family: 4,
+  hints: dns.ADDRCONFIG | dns.V4MAPPED,
+};
 
 app.use('/public', express.static(process.cwd() + '/public'));
 
@@ -31,8 +40,15 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
-app.post("/api/shorturl/new", function(req, res) {
-    res.send('Posting a request');
+app.post("/api/shorturl/new", urlEncodedParser, function(req, res) {
+    //res.send('Posting a request: ' + JSON.stringify(req.params));
+    console.log('url type: ' + typeof(req.body.url));
+    var urlToBeShortened = req.body.url;
+    dns.lookup('freecodecamp.com', options, (err, address, family) => {
+      console.log('address: %j family: IPv%s', address, family);
+    });
+
+    res.send({request: urlToBeShortened});
 });
 
 app.listen(port, function () {

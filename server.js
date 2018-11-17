@@ -44,12 +44,20 @@ app.post("/api/shorturl/new", urlEncodedParser, function(req, res) {
     //res.send('Posting a request: ' + JSON.stringify(req.params));
     console.log('url type: ' + typeof(req.body.url));
     var urlToBeShortened = req.body.url;
+    var testUrl = GetHostName(urlToBeShortened);
+    console.log('Test url: ' + testUrl);
     dns.lookup('freecodecamp.com', options, (err, address, family) => {
       console.log('address: %j family: IPv%s', address, family);
     });
 
     res.send({request: urlToBeShortened});
 });
+
+function GetHostName(url) {
+  //var urlRegExp = /(^https?:\\{2}w{3}[.])+/;
+  var urlRegExp = /[^.]+/;
+  return urlRegExp.test(url);
+}
 
 app.listen(port, function () {
   console.log('Node.js listening ...');

@@ -54,8 +54,9 @@ app.post("/api/shorturl/new", urlEncodedParser, function(req, res) {
 });
 
 function GetHostName(url) {
-  //var urlRegExp = /(^https?:\\{2}w{3}[.])+/;
-  var urlRegExp = /[^.]+/;
+  //var urlRegExp = /[^.]+/;
+  //var urlRegExp = /^(https|http):(\/){2}(www\.)([\w]+\.)+(com|org)(\/[\w-]+)*/;
+  var urlRegExp = /^(https|http):(\/){2}(www\.)([\w]+\.)+/;
   return urlRegExp.test(url);
 }
 

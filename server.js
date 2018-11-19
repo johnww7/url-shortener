@@ -44,9 +44,9 @@ app.post("/api/shorturl/new", urlEncodedParser, function(req, res) {
     //res.send('Posting a request: ' + JSON.stringify(req.params));
     console.log('url type: ' + typeof(req.body.url));
     var urlToBeShortened = req.body.url;
-    var testUrl = GetHostName(urlToBeShortened);
-    console.log('Test url: ' + testUrl);
-    dns.lookup('freecodecamp.com', options, (err, address, family) => {
+    var shortUrl = GetHostName(urlToBeShortened);
+    console.log('Test url: ' + shortUrl);
+    dns.lookup(shortUrl, options, (err, address, family) => {
       console.log('address: %j family: IPv%s', address, family);
     });
 
@@ -56,8 +56,21 @@ app.post("/api/shorturl/new", urlEncodedParser, function(req, res) {
 function GetHostName(url) {
   //var urlRegExp = /[^.]+/;
   //var urlRegExp = /^(https|http):(\/){2}(www\.)([\w]+\.)+(com|org)(\/[\w-]+)*/;
-  var urlRegExp = /^(https|http):(\/){2}(www\.)([\w]+\.)+/;
-  return urlRegExp.test(url);
+  var urlRegExp = /^(https|http):(\/){2}(www\.)([\w]+\.)(com|org)([\/])?([\w-]+[\/]?)*/;
+  var testedUrl = urlRegExp.exec(url);
+  if(testedUrl !== null) {
+    var shortenedPath = testedUrl[0].substring((testedUrl[0].search(/[.]/))+1);
+    return shortenedPath;
+  }
+  else {
+    return "invalid url";
+  }
+
+  /*console.log('Positon: ' + getShortenedPath);
+  for(var i = 0; i < resultArray.length; i++) {
+    console.log('pos' + i + ': ' + resultArray[i]);
+  }
+  return urlRegExp.test(url);*/
 }
 
 app.listen(port, function () {

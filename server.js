@@ -44,7 +44,7 @@ app.post("/api/shorturl/new", urlEncodedParser, function(req, res) {
     //res.send('Posting a request: ' + JSON.stringify(req.params));
     console.log('url type: ' + typeof(req.body.url));
     var urlToBeShortened = req.body.url;
-    var shortUrl = GetHostName(urlToBeShortened);
+    var shortUrl = getHostName(urlToBeShortened);
     console.log('Test url: ' + shortUrl.host + " : " + shortUrl.path);
     dns.lookup(shortUrl.host, options, (err, address, family) => {
       console.log('address: %j family: IPv%s', address, family);
@@ -53,7 +53,7 @@ app.post("/api/shorturl/new", urlEncodedParser, function(req, res) {
     res.send({request: urlToBeShortened});
 });
 
-function GetHostName(url) {
+function getHostName(url) {
   //var urlRegExp = /[^.]+/;
   //var urlRegExp = /^(https|http):(\/){2}(www\.)([\w]+\.)+(com|org)(\/[\w-]+)*/;
   var urlRegExp = /^(https|http):(\/){2}(www\.)([\w]+\.)(com|org)([\/])?([\w-]+[\/]?)*/;
@@ -62,22 +62,27 @@ function GetHostName(url) {
     //var startingPoint = (testedUrl[0].search(/[.]/)) + 1;
     var shortenedPath = testedUrl[0].substring((testedUrl[0].search(/[.]/))+1);
     var hostNameEndingPoint = shortenedPath.search(/[\/]/);
-    //var hostName = shortenedPath.substring(0, hostNameEndingPoint);
-    var hostName = hostNameEndingPoint == -1 ? shortenedPath : shortenedPath.substring(0, hostNameEndingPoint);
-    var urlRoutes = hostNameEndingPoint == -1 ? "/" : shortenedPath.substring(hostNameEndingPoint);
-    console.log("host name: " + hostName + " routes: " + urlRoutes);
-    return {host: hostName, path: urlRoutes};
+
+    var hostName = "";
+    var filePath = "";
+
+    if(hostNameEndingPoint == -1) {
+      hostName = shortenedPath;
+      filePath = "/";
+    }
+    else {
+      hostName = shortenedPath.substring(0, hostNameEndingPoint);
+      filePath = shortenedPath.substring(hostNameEndingPoint);
+    }
+
+    console.log("host name: " + hostName + " routes: " + filePath);
+    return {host: hostName, path: filePath};
     //return shortenedPath;
   }
   else {
     return {host: "invalid url"};
   }
 
-  /*console.log('Positon: ' + getShortenedPath);
-  for(var i = 0; i < resultArray.length; i++) {
-    console.log('pos' + i + ': ' + resultArray[i]);
-  }
-  return urlRegExp.test(url);*/
 }
 
 app.listen(port, function () {

@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 var dns = require('dns');
 
 var cors = require('cors');
+var UrlProfile = require('./UrlProfile.js');
 
 var app = express();
 

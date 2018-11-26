@@ -21,4 +21,30 @@ var UrlProfile = new mongoose.Schema({
   id: {type:Number, trim:true, default: 0}
 });
 
-module.exports =  mongoose.model('UrlProfile', UrlProfile);
+var UrlProfile = mongoose.model('Url', UrlProfile);
+
+/*var createUrl = function(entry) {
+  UrlProfile.create(entry).then(url => {
+
+  }).catch(err => {
+
+  });
+};*/
+var createUrl = function(entry) {
+  UrlProfile.create(entry, function(err, urlData) {
+    if(err) {
+      return console.error(err);
+    }
+  });
+};
+
+var findUrlEntry = function(index) {
+  UrlProfile.findOne(index, function(err, urlData) {
+    if(err) return console.error(err);
+    return urlData;
+  });
+};
+
+module.exports =  UrlProfile;
+module.exports = createUrl;
+module.exports = findUrlEntry;

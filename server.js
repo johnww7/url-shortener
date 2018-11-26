@@ -41,17 +41,37 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
+var createUrlEntry = require('./UrlProfile.js').createUrl;
+var findUrlEntry = require('./UrlProfile.js').findUrlEntry;
+
 app.post("/api/shorturl/new", urlEncodedParser, function(req, res) {
     //res.send('Posting a request: ' + JSON.stringify(req.params));
     console.log('url type: ' + typeof(req.body.url));
     var urlToBeShortened = req.body.url;
     var shortUrl = getHostName(urlToBeShortened);
     console.log('Test url: ' + shortUrl.host + " : " + shortUrl.path);
-    dns.lookup(shortUrl.host, options, (err, address, family) => {
-      console.log('address: %j family: IPv%s', address, family);
-    });
+    if(shortUrl.host !== "invalid url") {
+      var urlIpAddress = "";
+      var urlId = math.floor((Math.random()*3000) +1);
+      dns.lookup(shortUrl.host, options, (err, address, family) => {
+        urlIpAddress= address;
+        console.log('address: %j family: IPv%s', address, family);
+        console.log('Error message: ' + err);
+      });
+      var urlDataToSend = {
+        url: urlToBeShortened,
+        hostname: shortUrl.host,
+        path: shortUrl.path,
+        ipAddress: address,
+        id: 'test'
+      };
+      res.send({original_url: urlToBeShortened, short_url:'test'});
+    }
+    else {
+      res.send({error: "invalid url"});
+    }
 
-    res.send({request: urlToBeShortened});
+    //res.send({request: urlToBeShortened});
 });
 
 function getHostName(url) {

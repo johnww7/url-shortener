@@ -52,18 +52,21 @@ app.post("/api/shorturl/new", urlEncodedParser, function(req, res) {
     console.log('Test url: ' + shortUrl.host + " : " + shortUrl.path);
     if(shortUrl.host !== "invalid url") {
       var urlIpAddress = "";
-      var urlId = math.floor((Math.random()*3000) +1);
+      var urlId = Math.floor((Math.random()*3000) +1);
       dns.lookup(shortUrl.host, options, (err, address, family) => {
+        if(err) {
+          console.log('Error: ' + err.code);
+          return;
+        }
         urlIpAddress= address;
         console.log('address: %j family: IPv%s', address, family);
-        console.log('Error message: ' + err);
       });
       var urlDataToSend = {
         url: urlToBeShortened,
         hostname: shortUrl.host,
         path: shortUrl.path,
-        ipAddress: address,
-        id: 'test'
+        ipAddress: urlIpAddress,
+        id: 'urlId'
       };
       res.send({original_url: urlToBeShortened, short_url:'test'});
     }

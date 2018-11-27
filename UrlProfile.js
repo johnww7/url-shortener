@@ -2,8 +2,8 @@ var mongoose = require('mongoose');
 
 mongoose.Promise = global.Promise;
 mongoose.connect(process.env.MONGO_URI, {
-  keepAlive: true,
-  reconnectTries: Number.MAX_VALUE,
+  //keepAlive: true,
+  //reconnectTries: Number.MAX_VALUE,
   useMongoClient: true
 });
 

@@ -30,11 +30,12 @@ var UrlProfile = mongoose.model('Url', UrlProfile);
 
   });
 };*/
-var createUrl = function(entry) {
+var createUrl = function(entry, done) {
   UrlProfile.create(entry, function(err, urlData) {
     if(err) {
       return console.error(err);
     }
+    return done(null, urlData);
   });
 };
 
@@ -45,6 +46,6 @@ var findUrlEntry = function(index) {
   });
 };
 
-module.exports =  UrlProfile;
-module.exports = createUrl;
-module.exports = findUrlEntry;
+exports.UrProfile =  UrlProfile;
+exports.createUrl = createUrl;
+exports.findUrlEntry = findUrlEntry;

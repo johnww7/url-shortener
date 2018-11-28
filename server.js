@@ -54,7 +54,7 @@ app.post("/api/shorturl/new", urlEncodedParser, function(req, res) {
       var urlIpAddress = "";
       var urlId = Math.floor((Math.random()*3000) +1);
       dns.lookup(shortUrl.host, options, (err, address, family) => {
-        if(err) {
+        if(err === 'ENOENT') {
           console.log('Error: ' + err.code);
           return;
         }
@@ -66,9 +66,18 @@ app.post("/api/shorturl/new", urlEncodedParser, function(req, res) {
         hostname: shortUrl.host,
         path: shortUrl.path,
         ipAddress: urlIpAddress,
-        id: 'urlId'
+        id: urlId
       };
-      res.send({original_url: urlToBeShortened, short_url:'test'});
+      createUrlEntry(urlDataToSend, function(err, data) {
+        if(err) {
+          return (next(err));
+        }
+        if(!data) {
+          console.log('Missing argument');
+          return next({message: 'Missing callback argument'});
+        }
+      });
+      res.send({original_url: urlToBeShortened, short_url:urlId});
     }
     else {
       res.send({error: "invalid url"});

@@ -13,6 +13,7 @@ var app = express();
 
 // Basic Configuration
 var port = process.env.PORT || 3000;
+var timeout = 10000;
 
 /** this project needs a db !! **/
 // mongoose.connect(process.env.MONGOLAB_URI);
@@ -44,7 +45,21 @@ app.get("/api/hello", function (req, res) {
 var createUrlEntry = require('./UrlProfile.js').createUrl;
 var findUrlEntry = require('./UrlProfile.js').findUrlEntry;
 
-app.post("/api/shorturl/new", urlEncodedParser, function(req, res) {
+/*app.post("/api/create-model", function(req, res, next) {
+  var urlP;
+  var shortenedUrl = getHostName(req.body.url);
+  var urlDataObj = {
+    url: req.body.url,
+    hostname: shortendUrl.host,
+    path: shortendUrl.path,
+    ipAddress: "0.0.0.0",
+    id: 1
+  };
+  urlP = new UrlProfile(urlDataObj);
+  res.json(urlP);
+});*/
+
+app.post("/api/shorturl/new", urlEncodedParser, function(req, res, next) {
     //res.send('Posting a request: ' + JSON.stringify(req.params));
     console.log('url type: ' + typeof(req.body.url));
     var urlToBeShortened = req.body.url;
@@ -68,7 +83,9 @@ app.post("/api/shorturl/new", urlEncodedParser, function(req, res) {
         ipAddress: urlIpAddress,
         id: urlId
       };
+      var t = setTimeout(()=>{next({message: 'timeout'}) }, timeout);
       createUrlEntry(urlDataToSend, function(err, data) {
+        clearTimout(t);
         if(err) {
           return (next(err));
         }
@@ -77,10 +94,10 @@ app.post("/api/shorturl/new", urlEncodedParser, function(req, res) {
           return next({message: 'Missing callback argument'});
         }
       });
-      res.send({original_url: urlToBeShortened, short_url:urlId});
+      res.json({original_url: urlToBeShortened, short_url:urlId});
     }
     else {
-      res.send({error: "invalid url"});
+      res.json({error: "invalid url"});
     }
 
     //res.send({request: urlToBeShortened});

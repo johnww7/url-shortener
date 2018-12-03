@@ -7,7 +7,7 @@ var bodyParser = require('body-parser');
 var dns = require('dns');
 
 var cors = require('cors');
-var UrlProfile = require('./UrlProfile.js').UrlProfile;
+var UrlData = require('./UrlProfile.js').UrlData;
 
 var app = express();
 
@@ -55,11 +55,52 @@ var findUrlEntry = require('./UrlProfile.js').findUrlEntry;
     ipAddress: "0.0.0.0",
     id: 1
   };
-  urlP = new UrlProfile(urlDataObj);
+  urlP = new UrlData(urlDataObj);
   res.json(urlP);
 });*/
 
 app.post("/api/shorturl/new", urlEncodedParser, function(req, res, next) {
+    //res.send('Posting a request: ' + JSON.stringify(req.params));
+    console.log('url type: ' + typeof(req.body.url));
+    var urlToBeShortened = req.body.url;
+    var shortUrl = getHostName(urlToBeShortened);
+    console.log('Test url: ' + shortUrl.host + " : " + shortUrl.path);
+    if(shortUrl.host !== "invalid url") {
+      var urlIpAddress = "";
+      var urlId = Math.floor((Math.random()*3000) +1);
+      dns.lookup(shortUrl.host, options, (err, address, family) => {
+        if(err === 'ENOENT') {
+          console.log('Error: ' + err.code);
+          return;
+        }
+        urlIpAddress= address;
+        console.log('address: %j family: IPv%s', address, family);
+      });
+      var urlDataToSend = {
+        url: urlToBeShortened,
+        hostname: shortUrl.host,
+        path: shortUrl.path,
+        ipAddress: urlIpAddress,
+        id: urlId
+      };
+      //var t = setTimeout(()=>{next({message: 'timeout'}) }, timeout);
+      var docData = new UrlData(urlDataToSend);
+      docData.save(function(err, doc) {
+        if(err) {
+          console.error('error, no entry made');
+        }
+        console.log('Data: ' + doc);
+      });
+      res.json({original_url: urlToBeShortened, short_url:urlId});
+    }
+    else {
+      res.json({error: "invalid url"});
+    }
+
+    //res.send({request: urlToBeShortened});
+});
+
+/*app.post("/api/shorturl/new", urlEncodedParser, function(req, res, next) {
     //res.send('Posting a request: ' + JSON.stringify(req.params));
     console.log('url type: ' + typeof(req.body.url));
     var urlToBeShortened = req.body.url;
@@ -101,7 +142,7 @@ app.post("/api/shorturl/new", urlEncodedParser, function(req, res, next) {
     }
 
     //res.send({request: urlToBeShortened});
-});
+});*/
 
 function getHostName(url) {
   //var urlRegExp = /[^.]+/;

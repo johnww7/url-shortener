@@ -4,7 +4,10 @@ mongoose.Promise = global.Promise;
 mongoose.connect(process.env.MONGO_URI, {
   keepAlive: true,
   reconnectTries: Number.MAX_VALUE,
-  useMongoClient: true
+  reconnectInterval: 500,
+  useMongoClient: true,
+  connectTimeoutMS: 35000,
+  socketTimeoutMS: 40000
 });
 
 /*mongoose.connection.openUri(process.env.MONGO_URI)
@@ -21,7 +24,7 @@ var UrlProfile = new mongoose.Schema({
   id: {type:Number, trim:true, default: 0}
 });
 
-var UrlProfile = mongoose.model('Url', UrlProfile);
+var UrlData = mongoose.model('UrlData', UrlProfile);
 
 /*var createUrl = function(entry) {
   UrlProfile.create(entry).then(url => {
@@ -31,7 +34,7 @@ var UrlProfile = mongoose.model('Url', UrlProfile);
   });
 };*/
 var createUrl = function(entry, done) {
-  UrlProfile.create(entry, function(err, urlData) {
+  UrlData.create(entry, function(err, urlData) {
     if(err) {
       return console.error(err);
     }
@@ -40,12 +43,12 @@ var createUrl = function(entry, done) {
 };
 
 var findUrlEntry = function(index) {
-  UrlProfile.findOne(index, function(err, urlData) {
+  UrlData.findOne(index, function(err, urlData) {
     if(err) return console.error(err);
     return urlData;
   });
 };
 
-exports.UrlProfile =  UrlProfile;
+exports.UrlData =  UrlData;
 exports.createUrl = createUrl;
 exports.findUrlEntry = findUrlEntry;

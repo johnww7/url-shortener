@@ -13,7 +13,7 @@ var app = express();
 
 // Basic Configuration
 var port = process.env.PORT || 3000;
-var timeout = 10000;
+var timeout = 35000;
 
 /** this project needs a db !! **/
 // mongoose.connect(process.env.MONGOLAB_URI);
@@ -78,20 +78,20 @@ app.post("/api/shorturl/new", urlEncodedParser, function(req, res, next) {
       });
       var urlDataToSend = {
         url: urlToBeShortened,
-        hostname: shortUrl.host,
-        path: shortUrl.path,
-        ipAddress: urlIpAddress,
         id: urlId
       };
       //var t = setTimeout(()=>{next({message: 'timeout'}) }, timeout);
       var docData = new UrlData(urlDataToSend);
+      var connectionTimeout = setTimeout(() => {next({message: 'timeout'}) }, timeout );
       docData.save(function(err, doc) {
+        clearTimeout(connectionTimeout);
         if(err) {
           console.error('error, no entry made');
         }
         console.log('Data: ' + doc);
+        res.json({url_Data:doc });
       });
-      res.json({original_url: urlToBeShortened, short_url:urlId});
+      //res.json({original_url: urlToBeShortened, short_url:urlId});
     }
     else {
       res.json({error: "invalid url"});

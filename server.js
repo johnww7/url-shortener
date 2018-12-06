@@ -66,7 +66,38 @@ app.post("/api/shorturl/new", urlEncodedParser, function(req, res, next) {
     var shortUrl = getHostName(urlToBeShortened);
     console.log('Test url: ' + shortUrl.host + " : " + shortUrl.path);
     if(shortUrl.host !== "invalid url") {
-      var urlIpAddress = "";
+      var findTimeout = setTimeout(() => {next({message: 'timeout'}) }, timeout );
+      findUrlEntry(urlToBeShortened, function(err, data) {
+        clearTimeout(findTimeout);
+        if(err) {return next(err)};
+        if(data == null) {
+          var urlIpAddress = "";
+          var urlId = Math.floor((Math.random()*3000) +1);
+          dns.lookup(shortUrl.host, options, (err, address, family) => {
+            if(err === 'ENOENT') {
+              console.log('Error: ' + err.code);
+              return;
+            }
+            urlIpAddress= address;
+            console.log('address: %j family: IPv%s', address, family);
+          });
+          var urlDataToSend = {
+            url: urlToBeShortened,
+            id: urlId
+          };
+          createUrlEntry(urlDataToSend, function(err, doc) {
+            if(err) {
+              console.error('error, no entry made');
+            }
+            console.log('Data: ' + doc);
+            //res.json({url_Data: doc});
+            res.json({original_url: doc.url, short_url: doc.id});
+          });
+        }
+        //res.json({findData: data});
+        res.json({original_url: data.url, short_url: data.id});
+      });
+      /*var urlIpAddress = "";
       var urlId = Math.floor((Math.random()*3000) +1);
       dns.lookup(shortUrl.host, options, (err, address, family) => {
         if(err === 'ENOENT') {
@@ -90,7 +121,7 @@ app.post("/api/shorturl/new", urlEncodedParser, function(req, res, next) {
         }
         console.log('Data: ' + doc);
         res.json({url_Data:doc });
-      });
+      });*/
       //res.json({original_url: urlToBeShortened, short_url:urlId});
     }
     else {

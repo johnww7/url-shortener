@@ -40,7 +40,8 @@ var UrlProfile = new mongoose.Schema({
 var UrlData = mongoose.model('UrlData', UrlProfile);
 
 var createUrl = function(entry, done) {
-  UrlData.create(entry, function(err, urlData) {
+  var urlProfileEntry = new UrlData(entry);
+  urlProfileEntry.save(function(err, urlData) {
     if(err) {
       return console.error(err);
     }
@@ -48,10 +49,10 @@ var createUrl = function(entry, done) {
   });
 };
 
-var findUrlEntry = function(index) {
-  UrlData.findOne(index, function(err, urlData) {
+var findUrlEntry = function(findEntry, done) {
+  UrlData.findOne({url: findEntry}, function(err, urlData) {
     if(err) return console.error(err);
-    return urlData;
+    return done(null,urlData);
   });
 };
 

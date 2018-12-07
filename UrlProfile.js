@@ -56,6 +56,15 @@ var findUrlEntry = function(findEntry, done) {
   });
 };
 
+var getUrlEntry = function(indexId, done) {
+  UrlData.findOne({id: indexId}, function(err, data) {
+    if(err) {
+      return console.error(err);
+    }
+    return done(null, data);
+  });
+};
+
 /*var createUrl = function(entry) {
   UrlProfile.create(entry).then(url => {
 
@@ -82,3 +91,4 @@ var findUrlEntry = function(index) {
 exports.UrlData =  UrlData;
 exports.createUrl = createUrl;
 exports.findUrlEntry = findUrlEntry;
+exports.getUrlEntry = getUrlEntry;

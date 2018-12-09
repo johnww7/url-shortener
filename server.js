@@ -42,6 +42,26 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
+var findUrlEntry = require('./UrlProfile.js').getUrlEntry;
+app.get("/api/shorturl/:shortUrlId", function(req, res) {
+  //res.json(req.params);
+  console.log('ID: ' + req.params.shortUrlId);
+  var searchTimeout = setTimeout(() => {next({message: 'timeout'}) }, timeout );
+  findUrlEntry(req.params.shortUrlId, function(err, data) {
+    clearTimeout(searchTimeout);
+    if(err) {
+      console.error(err);
+    }
+    /*if(!data) {
+      console.log('Missing done statement');
+      return;
+    }*/
+    res.json({data});
+
+  });
+
+});
+
 var createUrlEntry = require('./UrlProfile.js').createUrl;
 var findUrlEntry = require('./UrlProfile.js').findUrlEntry;
 
@@ -95,9 +115,7 @@ app.post("/api/shorturl/new", urlEncodedParser, function(req, res, next) {
     //res.send({request: urlToBeShortened});
 });
 
-app.get("/api/shorturl/:shortUrlId", function(req, res) {
-  res.json(req.params);
-});
+
 
 function getHostName(url) {
   //var urlRegExp = /[^.]+/;

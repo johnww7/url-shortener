@@ -43,10 +43,10 @@ app.get("/api/hello", function (req, res) {
 });
 
 var getUrlEntry = require('./UrlProfile.js').getUrlEntry;
-app.get("/api/shorturl/:shortUrlId", function(req, res) {
+app.get("/api/shorturl/:shortUrlId", function(req, res, next) {
   //res.json(req.params);
   console.log('ID: ' + req.params.shortUrlId + "TypeOf id: " + typeof (req.params.shortUrlId));
-  var shortUrlId = parseInt(req.params.shortUrlId);
+  var shortUrlId = parseInt(req.params.shortUrlId, 10);
   var searchTimeout = setTimeout(() => {next({message: 'timeout'}) }, timeout );
   getUrlEntry(shortUrlId, function(err, entry) {
     clearTimeout(searchTimeout);
@@ -57,9 +57,13 @@ app.get("/api/shorturl/:shortUrlId", function(req, res) {
       console.log('Missing done statement');
       return;
     }*/
-    console.log('Found: ' + entry);
-    //res.json({url: entry});
+    console.log('Found: ' + entry + ' tyepof entry:' + typeof entry);
+    console.log(encodeURIComponent(entry.url));
     res.redirect(entry.url);
+    next();
+    //res.json({url: entry});
+    //var returnedUrlEntry = JSON.parse(entry);
+    //res.redirect(returnedUrlEntry.url);
   });
 
 });

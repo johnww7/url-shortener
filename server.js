@@ -42,12 +42,13 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
-var findUrlEntry = require('./UrlProfile.js').getUrlEntry;
+var getUrlEntry = require('./UrlProfile.js').getUrlEntry;
 app.get("/api/shorturl/:shortUrlId", function(req, res) {
   //res.json(req.params);
-  console.log('ID: ' + req.params.shortUrlId);
+  console.log('ID: ' + req.params.shortUrlId + "TypeOf id: " + typeof (req.params.shortUrlId));
+  var shortUrlId = parseInt(req.params.shortUrlId);
   var searchTimeout = setTimeout(() => {next({message: 'timeout'}) }, timeout );
-  findUrlEntry(req.params.shortUrlId, function(err, data) {
+  getUrlEntry(shortUrlId, function(err, entry) {
     clearTimeout(searchTimeout);
     if(err) {
       console.error(err);
@@ -56,8 +57,9 @@ app.get("/api/shorturl/:shortUrlId", function(req, res) {
       console.log('Missing done statement');
       return;
     }*/
-    res.json({data});
-
+    console.log('Found: ' + entry);
+    //res.json({url: entry});
+    res.redirect(entry.url);
   });
 
 });
@@ -89,7 +91,7 @@ app.post("/api/shorturl/new", urlEncodedParser, function(req, res, next) {
           });
           var urlDataToSend = {
             url: urlToBeShortened,
-            id: urlId
+            urlId: urlId
           };
           createUrlEntry(urlDataToSend, function(err, doc) {
             if(err) {
@@ -98,13 +100,13 @@ app.post("/api/shorturl/new", urlEncodedParser, function(req, res, next) {
             //console.log('Data: ' + doc);
             //res.json({url_Data: doc});
             console.log("Creating new entry");
-            res.json({original_url: doc.url, short_url: doc.id});
+            res.json({original_url: doc.url, short_url: doc.urlId});
           });
         }
         //res.json({findData: data});
         else {
           console.log("Already in database");
-          res.json({original_url: data.url, short_url: data.id});
+          res.json({original_url: data.url, short_url: data.urlId});
         }
       });
     }

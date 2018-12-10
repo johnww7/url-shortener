@@ -34,7 +34,7 @@ db.once('open', function callback() {
 
 var UrlProfile = new mongoose.Schema({
   url: {type:String, trim:true, default:''},
-  id: {type:Number, trim:true, default: 0}
+  urlId: {type:Number, trim:true, default: 0}
 });
 
 var UrlData = mongoose.model('UrlData', UrlProfile);
@@ -57,7 +57,7 @@ var findUrlEntry = function(findEntry, done) {
 };
 
 var getUrlEntry = function(indexId, done) {
-  UrlData.findOne({id: indexId}, function(err, data) {
+  UrlData.find({urlId: indexId}, 'url', function(err, data) {
     if(err) {
       return console.error(err);
     }

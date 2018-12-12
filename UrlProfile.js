@@ -1,9 +1,9 @@
 var mongoose = require('mongoose');
 
-const URI_INFO = 'mongodb://john:N1teLockon@ds035787.mlab.com:35787/jwfccmongodb';
+//const URI_INFO = 'mongodb://john:N1teLockon@ds035787.mlab.com:35787/jwfccmongodb';
 //process.env.MONGO_URI
 mongoose.Promise = global.Promise;
-mongoose.connect(URI_INFO, {
+mongoose.connect(process.env.MONGO_URI, {
   keepAlive: true,
   reconnectTries: Number.MAX_VALUE,
   reconnectInterval: 500,
@@ -12,20 +12,6 @@ mongoose.connect(URI_INFO, {
   useNewUrlParser: true
 });
 
-
-/*mongoose.connection.openUri(process.env.MONGO_URI)
-.once('open', ()=> console.log('Connected!')).on('error', (error) => {
-  console.warn('error', error);
-});*/
-
-
-/*var UrlProfile = new mongoose.Schema({
-  url: {type:String, trim:true, default:''},
-  hostname: {type:String, trim:true, default:''},
-  path: {type:String, trim:true, default:''},
-  ipAddress: {type:String, trim:true, default:''},
-  id: {type:Number, trim:true, default: 0}
-});*/
 let db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error: '));
 db.once('open', function callback() {
@@ -64,29 +50,6 @@ var getUrlEntry = function(indexId, done) {
     return done(null, data);
   });
 };
-
-/*var createUrl = function(entry) {
-  UrlProfile.create(entry).then(url => {
-
-  }).catch(err => {
-
-  });
-};*/
-/*var createUrl = function(entry, done) {
-  UrlData.create(entry, function(err, urlData) {
-    if(err) {
-      return console.error(err);
-    }
-    return done(null, urlData);
-  });
-};
-
-var findUrlEntry = function(index) {
-  UrlData.findOne(index, function(err, urlData) {
-    if(err) return console.error(err);
-    return urlData;
-  });
-};*/
 
 exports.UrlData =  UrlData;
 exports.createUrl = createUrl;

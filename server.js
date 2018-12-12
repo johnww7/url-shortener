@@ -44,8 +44,7 @@ app.get("/api/hello", function (req, res) {
 
 var getUrlEntry = require('./UrlProfile.js').getUrlEntry;
 app.get("/api/shorturl/:shortUrlId", function(req, res, next) {
-  //res.json(req.params);
-  console.log('ID: ' + req.params.shortUrlId + "TypeOf id: " + typeof (req.params.shortUrlId));
+
   var shortUrlId = parseInt(req.params.shortUrlId, 10);
   var searchTimeout = setTimeout(() => {next({message: 'timeout'}) }, timeout );
   getUrlEntry(shortUrlId, function(err, entry) {
@@ -53,17 +52,9 @@ app.get("/api/shorturl/:shortUrlId", function(req, res, next) {
     if(err) {
       console.error(err);
     }
-    /*if(!data) {
-      console.log('Missing done statement');
-      return;
-    }*/
-    console.log('Found: ' + entry + ' tyepof entry:' + typeof entry);
-    console.log(encodeURIComponent(entry.url));
-    res.redirect(entry.url);
-    next();
-    //res.json({url: entry});
-    //var returnedUrlEntry = JSON.parse(entry);
-    //res.redirect(returnedUrlEntry.url);
+
+    console.log(entry[0].url);
+    res.redirect(entry[0].url);
   });
 
 });
@@ -72,11 +63,9 @@ var createUrlEntry = require('./UrlProfile.js').createUrl;
 var findUrlEntry = require('./UrlProfile.js').findUrlEntry;
 
 app.post("/api/shorturl/new", urlEncodedParser, function(req, res, next) {
-    //res.send('Posting a request: ' + JSON.stringify(req.params));
-    console.log('url type: ' + typeof(req.body.url));
     var urlToBeShortened = req.body.url;
     var shortUrl = getHostName(urlToBeShortened);
-    console.log('Test url: ' + shortUrl.host + " : " + shortUrl.path);
+
     if(shortUrl.host !== "invalid url") {
       var findTimeout = setTimeout(() => {next({message: 'timeout'}) }, timeout );
       findUrlEntry(urlToBeShortened, function(err, data) {
@@ -84,14 +73,13 @@ app.post("/api/shorturl/new", urlEncodedParser, function(req, res, next) {
         if(err) {return next(err)};
         if(data == null) {
           var urlIpAddress = "";
-          var urlId = Math.floor((Math.random()*3000) +1);
+          var urlId = Math.floor((Math.random()*3000) + 1);
           dns.lookup(shortUrl.host, options, (err, address, family) => {
             if(err === 'ENOENT') {
               console.log('Error: ' + err.code);
               return;
             }
             urlIpAddress= address;
-            console.log('address: %j family: IPv%s', address, family);
           });
           var urlDataToSend = {
             url: urlToBeShortened,
@@ -101,13 +89,11 @@ app.post("/api/shorturl/new", urlEncodedParser, function(req, res, next) {
             if(err) {
               console.error('error, no entry made');
             }
-            //console.log('Data: ' + doc);
-            //res.json({url_Data: doc});
+
             console.log("Creating new entry");
             res.json({original_url: doc.url, short_url: doc.urlId});
           });
         }
-        //res.json({findData: data});
         else {
           console.log("Already in database");
           res.json({original_url: data.url, short_url: data.urlId});
@@ -118,13 +104,9 @@ app.post("/api/shorturl/new", urlEncodedParser, function(req, res, next) {
       res.json({error: "invalid url"});
     }
 
-    //res.send({request: urlToBeShortened});
 });
 
-
-
 function getHostName(url) {
-  //var urlRegExp = /[^.]+/;
   //var urlRegExp = /^(https|http):(\/){2}(www\.)([\w]+\.)+(com|org)(\/[\w-]+)*/;
   var urlRegExp = /^(https|http):(\/){2}(www\.)([\w]+\.)(com|org)([\/])?([\w-]+[\/]?)*/;
   var testedUrl = urlRegExp.exec(url);
@@ -145,9 +127,7 @@ function getHostName(url) {
       filePath = shortenedPath.substring(hostNameEndingPoint);
     }
 
-    console.log("host name: " + hostName + " routes: " + filePath);
     return {host: hostName, path: filePath};
-    //return shortenedPath;
   }
   else {
     return {host: "invalid url"};

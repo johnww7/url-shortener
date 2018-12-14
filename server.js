@@ -42,6 +42,10 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
+//---------------------------------------------------------------------------
+//Route takes in shortUrl id as a parameter and redirects client to url
+//retrieved for that shortUrl id.
+//---------------------------------------------------------------------------
 var getUrlEntry = require('./UrlProfile.js').getUrlEntry;
 app.get("/api/shorturl/:shortUrlId", function(req, res, next) {
 
@@ -59,9 +63,15 @@ app.get("/api/shorturl/:shortUrlId", function(req, res, next) {
 
 });
 
+//---------------------------------------------------------------------------
+//Route handles a post method request which contains a URL. First it processes
+//the url to see if it is a valid url and if so returns hostname. Queries collection
+//to see if url exists already, if not checks to see if hostname exists and if it does
+//saves to collection, then sends to page orignal url and shorturl id. If url entry
+//already exists returns original url and shorturl id to page.
+//----------------------------------------------------------------------------
 var createUrlEntry = require('./UrlProfile.js').createUrl;
 var findUrlEntry = require('./UrlProfile.js').findUrlEntry;
-
 app.post("/api/shorturl/new", urlEncodedParser, function(req, res, next) {
     var urlToBeShortened = req.body.url;
     var shortUrl = getHostName(urlToBeShortened);
@@ -106,12 +116,15 @@ app.post("/api/shorturl/new", urlEncodedParser, function(req, res, next) {
 
 });
 
+//----------------------------------------------------------------------------
+//Parses url parameter passed to function based on regexp, if valid url returns
+//hostname and filepath. If not a valid url returns invalid url.
+//----------------------------------------------------------------------------
 function getHostName(url) {
-  //var urlRegExp = /^(https|http):(\/){2}(www\.)([\w]+\.)+(com|org)(\/[\w-]+)*/;
+
   var urlRegExp = /^(https|http):(\/){2}(www\.)([\w]+\.)(com|org)([\/])?([\w-]+[\/]?)*/;
   var testedUrl = urlRegExp.exec(url);
   if(testedUrl !== null) {
-    //var startingPoint = (testedUrl[0].search(/[.]/)) + 1;
     var shortenedPath = testedUrl[0].substring((testedUrl[0].search(/[.]/))+1);
     var hostNameEndingPoint = shortenedPath.search(/[\/]/);
 
